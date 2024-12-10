@@ -1,0 +1,81 @@
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078100, rho = -0.000006
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078098, rho = 0.000396
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078084, rho = 0.000472
+nSV = 80, nBSV = 80
+Total nSV = 120
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078101, rho = -0.000110
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078097, rho = 0.000348
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078083, rho = 0.000485
+nSV = 80, nBSV = 80
+Total nSV = 120
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078101, rho = -0.000025
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078097, rho = 0.000321
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078083, rho = 0.000424
+nSV = 80, nBSV = 80
+Total nSV = 120
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078101, rho = -0.000073
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078097, rho = 0.000300
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078084, rho = 0.000425
+nSV = 80, nBSV = 80
+Total nSV = 120
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078102, rho = -0.000020
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078098, rho = 0.000411
+nSV = 80, nBSV = 80
+*
+optimization finished, #iter = 40
+nu = 1.000000
+obj = -0.078085, rho = 0.000449
+nSV = 80, nBSV = 80
+Total nSV = 120
+Cross Validation Accuracy = 99.3333%
