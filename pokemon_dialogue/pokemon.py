@@ -461,6 +461,12 @@ while game_status != 'quit':
         pygame.display.update()
 
     if game_status == 'player move':
+        game.fill(white)
+        player_pokemon.draw()
+        rival_pokemon.draw()
+        player_pokemon.draw_hp()
+        rival_pokemon.draw_hp()
+
         # Julius コマンドを直接実行
         julius_command = [
             "julius", 
@@ -476,7 +482,7 @@ while game_status != 'quit':
                 text=True
             )
 
-            display_message("技を音声で選んでください (例: たたかう, かいふく)")
+            display_message("select a move")
 
             # 音声認識の結果をリアルタイムで取得
             while True:
