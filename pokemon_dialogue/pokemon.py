@@ -475,6 +475,11 @@ while game_status != 'quit':
                 stderr=subprocess.PIPE,
                 text=True
             )
+            game.fill(white)
+            player_pokemon.draw()
+            rival_pokemon.draw()
+            player_pokemon.draw_hp()
+            rival_pokemon.draw_hp()
 
             display_message("技を音声で選んでください (例: たたかう, かいふく)")
 
@@ -489,9 +494,11 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "僕 は 市毛 です" in result:
+                        if "あわ" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
-                            game_status = 'fainted'
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: あわ")
                             break
                         elif "かいふく" in result:
                             if player_pokemon.num_potions > 0:
@@ -501,15 +508,23 @@ while game_status != 'quit':
                                 display_message("ポーションがありません！")
                                 time.sleep(2)
                             break
+                        else:
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: あわ")
 
                 # プロセスが終了した場合
                 if process.poll() is not None:
+                    print("Julius プロセスが終了しました")
                     break
+            # print("ループを抜けました")
 
             # Julius のエラー出力を取得してデバッグ
-            stderr_output = process.stderr.read()
-            if stderr_output:
-                print(f"Julius エラー: {stderr_output}")
+            # stderr_output = process.stderr.read()
+            # print(stderr_output)
+            # if stderr_output:
+            #     print(f"Julius エラー: {stderr_output}")
 
         except Exception as e:
             print(f"Julius 実行中にエラーが発生しました: {str(e)}")
