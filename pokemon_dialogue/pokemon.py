@@ -463,8 +463,8 @@ while game_status != 'quit':
     if game_status == 'player move':
         # Julius コマンドを直接実行
         julius_command = [
-            "julius", 
-            "-C", "/home/denjo/pokemon-dialogue/dialogue-demo/asr/grammar-mic.jconf",
+            "julius",
+            "-C", "dialogue-demo/asr/grammar-mic.jconf",
             "-input", "mic"
         ]
 
@@ -491,7 +491,7 @@ while game_status != 'quit':
                         # 音声認識結果に応じてゲームロジックを実行
                         if "僕 は 市毛 です" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
-                            game_status = 'fainted' 
+                            game_status = 'fainted'
                             break
                         elif "かいふく" in result:
                             if player_pokemon.num_potions > 0:
