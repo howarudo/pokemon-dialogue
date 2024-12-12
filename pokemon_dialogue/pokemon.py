@@ -93,7 +93,7 @@ class Pokemon(pygame.sprite.Sprite):
         display_message(f'{self.name} used {move.name}')
 
         # pause for 2 seconds
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
         # calculate the damage
         damage = (2 * self.level + 10) / 250 * self.attack / other.defense * move.power
@@ -103,7 +103,7 @@ class Pokemon(pygame.sprite.Sprite):
             damage *= 1.5
 
         # critical hit (6.25% chance)
-        random_num = random.randint(1, 10000)
+        random_num = random.randint(1, 5000)
         if random_num <= 625:
             damage *= 1.5
 
@@ -330,12 +330,12 @@ while game_status != 'quit':
                     # force to attack if there are no more potions
                     if player_pokemon.num_potions == 0:
                         display_message('No more potions left')
-                        pygame.time.wait(1000)
+                        pygame.time.delay(500)
                         game_status = 'player move'
                     else:
                         player_pokemon.use_potion()
                         display_message(f'{player_pokemon.name} used potion')
-                        pygame.time.wait(1000)
+                        pygame.time.delay(500)
                         game_status = 'rival turn'
 
             # for selecting a move
@@ -416,7 +416,7 @@ while game_status != 'quit':
             pygame.display.update()
 
         # pause for 1 second
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
         # player sends out their pokemon
         alpha = 0
@@ -443,15 +443,34 @@ while game_status != 'quit':
         pygame.display.update()
 
         # pause for 1 second
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
     # display the fight and use potion buttons
+    if game_status == 'player turn':
+
+        game.fill(white)
+        player_pokemon.draw()
+        rival_pokemon.draw()
+        player_pokemon.draw_hp()
+        rival_pokemon.draw_hp()
+
+        # create the fight and use potion buttons
+        fight_button = create_button(240, 140, 10, 350, 130, 412, 'Fight')
+        potion_button = create_button(240, 140, 250, 350, 370, 412, f'Use Potion ({player_pokemon.num_potions})')
+
+        # draw the black border
+        pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
+
+        pygame.display.update()
+
     if game_status == 'player move':
         # Julius コマンドを直接実行
         julius_command = [
             "julius",
-            "-C", "dialogue-demo/asr/grammar-mic.jconf",
-            "-input", "mic"
+            "-C",
+            "dialogue-demo/asr/grammar-mic.jconf",
+            "-input",
+            "mic"
         ]
 
         try:
@@ -467,7 +486,7 @@ while game_status != 'quit':
             player_pokemon.draw_hp()
             rival_pokemon.draw_hp()
 
-            display_message("技を音声で選んでください (例: あわ, ひのこ, つるのムチ)")
+            display_message("技を音声で選んでください (例: たたかう, かいふく)")
 
             # 音声認識の結果をリアルタイムで取得
             while True:
@@ -479,27 +498,43 @@ while game_status != 'quit':
                         result = match.group(1).strip()
                         print(f"認識結果: {result}")  # デバッグ用出力
 
-                        # 技選択ロジック
-                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result:
+                        # 音声認識結果に応じてゲームロジックを実行
+                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result : 
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
-                        elif "みずでっぽう" in result or "いかり" in result or "はっぱカッター" in result:
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: あわ")
+                            break
+                        elif "たいあたり" in result or "いかり" in result or "みずでっぽう" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[1])
-                        elif "かみつく" in result or "きりさく" in result or "ひっかく" in result:
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: たいあたり")
+                            break
+                        elif "はっぱカッター" in result or "きりさく" in result or "かみつく" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
-                        elif "たいあたり" in result or "かみつく" in result :
-                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[3])
-                        else:
-                            display_message("無効なコマンドです")
-                            continue
-
-                        # ターンの変更
-                        game_status = 'rival turn'
-                        break
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: はっぱカッター")
+                            break
+                        elif "ひっかく" in result or "ほのお" in result :
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: はっぱカッター")
+                            break                            
 
                 # プロセスが終了した場合
                 if process.poll() is not None:
                     print("Julius プロセスが終了しました")
                     break
+            # print("ループを抜けました")
+
+            # Julius のエラー出力を取得してデバッグ
+            # stderr_output = process.stderr.read()
+            # print(stderr_output)
+            # if stderr_output:
+            #     print(f"Julius エラー: {stderr_output}")
 
         except Exception as e:
             print(f"Julius 実行中にエラーが発生しました: {str(e)}")
@@ -520,14 +555,14 @@ while game_status != 'quit':
 
         # empty the display box and pause for 2 seconds before attacking
         display_message('')
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
         # select a random move
         move = random.choice(rival_pokemon.moves)
         rival_pokemon.perform_attack(player_pokemon, move)
 
         # check if the player's pokemon fainted
-        if player_pokemon.current_hp == 0:
+        if player_pokemon.current_hp == 0 or rival_pokemon.current_hp == 0:
             game_status = 'fainted'
         else:
             game_status = 'player turn'
