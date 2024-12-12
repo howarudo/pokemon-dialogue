@@ -499,25 +499,30 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "あわ" in result:
+                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result : 
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
                             print("技: あわ")
                             break
-                        elif "かいふく" in result:
-                            if player_pokemon.num_potions > 0:
-                                player_pokemon.use_potion()
-                                game_status = 'rival turn'
-                            else:
-                                display_message("ポーションがありません！")
-                                pygame.time.delay(500)
-                            break
-                        else:
-                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
+                        elif "たいあたり" in result or "いかり" in result or "みずでっぽう" in result:
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[1])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: あわ")
+                            print("技: たいあたり")
+                            break
+                        elif "はっぱカッター" in result or "きりさく" in result or "かみつく" in result:
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: はっぱカッター")
+                            break
+                        elif "ひっかく" in result or "ほのお" in result :
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
+                            game_status = 'rival turn'
+                            # game_status = 'fainted'
+                            print("技: はっぱカッター")
+                            break                            
 
                 # プロセスが終了した場合
                 if process.poll() is not None:
@@ -557,7 +562,7 @@ while game_status != 'quit':
         rival_pokemon.perform_attack(player_pokemon, move)
 
         # check if the player's pokemon fainted
-        if player_pokemon.current_hp == 0:
+        if player_pokemon.current_hp == 0 or rival_pokemon.current_hp == 0:
             game_status = 'fainted'
         else:
             game_status = 'player turn'
