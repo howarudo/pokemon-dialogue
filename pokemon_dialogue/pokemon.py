@@ -10,6 +10,10 @@ import subprocess
 import os
 import logging
 import re  # 正規表現で出力を解析する
+import sounddevice as sd
+import scipy.io.wavfile as wav
+import re
+
 
 pygame.init()
 # create the game window
@@ -253,6 +257,20 @@ def create_button(width, height, left, top, text_cx, text_cy, label):
 
     return button
 
+def record_audio(filename, duration=10, samplerate=16000):
+    # if os.path.exists(filename):
+    #     os.remove(filename)
+
+    print("Recording audio...")
+
+    # Record audio using sounddevice
+    audio_data = sd.rec(int(samplerate * duration), samplerate=samplerate, channels=1, dtype='int16')
+    sd.wait()  # Wait for the recording to finish
+
+    # Save the recorded audio to a .wav file
+    wav.write(filename, samplerate, audio_data)
+    print(f"Audio saved to {filename}")
+
 # create the starter pokemons
 level = 30
 bulbasaur = Pokemon('Bulbasaur', level, 25, 150)
@@ -468,9 +486,11 @@ while game_status != 'quit':
         julius_command = [
             "julius",
             "-C",
-            "dialogue-demo/asr/grammar-mic.jconf",
+            "dialogue-demo/asr/grammar.jconf",
             "-input",
-            "mic"
+            "rawfile",
+            "-filelist",
+            "pokemon_dialogue/tmp/input.txt",
         ]
 
         try:
@@ -487,55 +507,47 @@ while game_status != 'quit':
             rival_pokemon.draw_hp()
 
             display_message("技を音声で選んでください (例: たたかう, かいふく)")
+            record_audio("pokemon_dialogue/tmp/input.wav", duration=4)
 
-            # 音声認識の結果をリアルタイムで取得
-            while True:
-                line = process.stdout.readline()
-                if line:
-                    # "sentence1:" で始まる行を取得
-                    match = re.match(r"sentence1:\s*(.*)", line)
-                    if match:
-                        result = match.group(1).strip()
-                        print(f"認識結果: {result}")  # デバッグ用出力
+            process = subprocess.Popen(
+                julius_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
 
-                        # 音声認識結果に応じてゲームロジックを実行
-                        if "あわ" in result:
-                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
-                            game_status = 'rival turn'
-                            # game_status = 'fainted'
-                            print("技: あわ")
-                            break
-                        elif "かいふく" in result:
-                            if player_pokemon.num_potions > 0:
-                                player_pokemon.use_potion()
-                                game_status = 'rival turn'
-                            else:
-                                display_message("ポーションがありません！")
-                                pygame.time.delay(500)
-                            break
-                        else:
-                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
-                            game_status = 'rival turn'
-                            # game_status = 'fainted'
-                            print("技: あわ")
+            # Capture the output from stdout and stderr
+            stdout, stderr = process.communicate()
 
-                # プロセスが終了した場合
-                if process.poll() is not None:
-                    print("Julius プロセスが終了しました")
-                    break
-            # print("ループを抜けました")
+            match = re.search(r"silB (.+?) silE", stdout)
+            if match:
+                result = match.group(1).strip()
+                print(f"認識結果: {result}")  # Debugging output
 
-            # Julius のエラー出力を取得してデバッグ
-            # stderr_output = process.stderr.read()
-            # print(stderr_output)
-            # if stderr_output:
-            #     print(f"Julius エラー: {stderr_output}")
+                if "あわ" in result:
+                    player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
+                    game_status = 'rival turn'
+                    print("技: あわ")
+                elif "かいふく" in result:
+                    if player_pokemon.num_potions > 0:
+                        player_pokemon.use_potion()
+                        game_status = 'rival turn'
+                    else:
+                        display_message("ポーションがありません！")
+                        pygame.time.delay(500)
+                else:
+                    player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
+                    game_status = 'rival turn'
+                    print("技: あわ")
+
+            else:
+                print("音声認識結果が見つかりませんでした。")
 
         except Exception as e:
             print(f"Julius 実行中にエラーが発生しました: {str(e)}")
             display_message("音声認識に失敗しました。リトライしてください。")
 
-        # 描画を更新
+        # Update the game display
         pygame.display.update()
 
 

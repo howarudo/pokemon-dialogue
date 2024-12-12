@@ -53,4 +53,3 @@ if __name__ == '__main__':
         answer = 'もう一度お願いします'
     print("Silly: " + answer)
     os.system(mk_jtalk_command(answer))
-
