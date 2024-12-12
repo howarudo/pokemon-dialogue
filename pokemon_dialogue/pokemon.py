@@ -233,7 +233,6 @@ def display_message(message):
     pygame.display.update()
 
 def create_button(width, height, left, top, text_cx, text_cy, label):
-
     # position of the mouse cursor
     mouse_cursor = pygame.mouse.get_pos()
 
@@ -246,7 +245,7 @@ def create_button(width, height, left, top, text_cx, text_cy, label):
         pygame.draw.rect(game, white, button)
 
     # add the label to the button
-    font = pygame.font.Font(pygame.font.get_default_font(), 16)
+    font = pygame.font.Font(font_path, 16)  # 日本語対応フォントを指定
     text = font.render(f'{label}', True, black)
     text_rect = text.get_rect(center=(text_cx, text_cy))
     game.blit(text, text_rect)
@@ -410,7 +409,12 @@ while game_status != 'quit':
 
             game.fill(white)
             rival_pokemon.draw(alpha)
-            display_message(f'Rival sent out {rival_pokemon.name}!')
+            if rival_pokemon.name == 'Bulbasaur':
+                display_message('ライバルは　フシギダネを　くりだした！!')
+            elif rival_pokemon.name == 'Charmander':
+                display_message('ライバルは　ヒトカゲを　くりだした！')
+            elif rival_pokemon.name == 'Squirtle':
+                display_message('ライバルは　ゼニガメを　くりだした！')
             alpha += .4
 
             pygame.display.update()
@@ -425,7 +429,12 @@ while game_status != 'quit':
             game.fill(white)
             rival_pokemon.draw()
             player_pokemon.draw(alpha)
-            display_message(f'Go {player_pokemon.name}!')
+            if player_pokemon.name == 'Bulbasaur':
+                display_message('ゆけっ！　フシギダネ！')
+            elif player_pokemon.name == 'Charmander':
+                display_message('ゆけっ！　ヒトカゲ！')
+            elif player_pokemon.name == 'Squirtle':
+                display_message('ゆけっ！　ゼニガメ！')
             alpha += .4
 
             pygame.display.update()
@@ -455,8 +464,8 @@ while game_status != 'quit':
         rival_pokemon.draw_hp()
 
         # create the fight and use potion buttons
-        fight_button = create_button(240, 140, 10, 350, 130, 412, 'Fight')
-        potion_button = create_button(240, 140, 250, 350, 370, 412, f'Use Potion ({player_pokemon.num_potions})')
+        fight_button = create_button(240, 140, 10, 350, 130, 412, 'たたかう')
+        potion_button = create_button(240, 140, 250, 350, 370, 412, "きずぐすり")
 
         # draw the black border
         pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
@@ -486,7 +495,7 @@ while game_status != 'quit':
             player_pokemon.draw_hp()
             rival_pokemon.draw_hp()
 
-            display_message("技を音声で選んでください (例: たたかう, かいふく)")
+            display_message("ポケモンに指示を出すんだ！！！")
 
             # 音声認識の結果をリアルタイムで取得
             while True:
@@ -583,11 +592,21 @@ while game_status != 'quit':
             if rival_pokemon.current_hp == 0:
                 player_pokemon.draw()
                 rival_pokemon.draw(alpha)
-                display_message(f'{rival_pokemon.name} fainted!')
+                if rival_pokemon.name == 'Bulbasaur':
+                    display_message("てきの　フシギダネ　は　たおれた！")
+                elif rival_pokemon.name == 'Charmander':
+                    display_message("てきの　ヒトカゲ　は　たおれた！")
+                elif rival_pokemon.name == 'Squirtle':
+                    display_message("てきの　ゼニガメ　は　たおれた！")
             else:
                 player_pokemon.draw(alpha)
                 rival_pokemon.draw()
-                display_message(f'{player_pokemon.name} fainted!')
+                if player_pokemon.name == 'Bulbasaur':
+                    display_message("フシギダネ　は　たおれた！")
+                elif player_pokemon.name == 'Charmander':
+                    display_message("ヒトカゲ　は　たおれた！")
+                elif player_pokemon.name == 'Squirtle':
+                    display_message("ゼニガメ　は　たおれた！")
             alpha -= .4
 
             pygame.display.update()
@@ -597,6 +616,6 @@ while game_status != 'quit':
     # gameover screen
     if game_status == 'gameover':
 
-        display_message('Play again (Y/N)?')
+        display_message('もういちど　たたかいますか？ (Y/N)?')
 
 pygame.quit()
