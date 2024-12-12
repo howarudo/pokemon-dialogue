@@ -93,7 +93,7 @@ class Pokemon(pygame.sprite.Sprite):
         display_message(f'{self.name} used {move.name}')
 
         # pause for 2 seconds
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
         # calculate the damage
         damage = (2 * self.level + 10) / 250 * self.attack / other.defense * move.power
@@ -103,7 +103,7 @@ class Pokemon(pygame.sprite.Sprite):
             damage *= 1.5
 
         # critical hit (6.25% chance)
-        random_num = random.randint(1, 10000)
+        random_num = random.randint(1, 5000)
         if random_num <= 625:
             damage *= 1.5
 
@@ -327,12 +327,12 @@ while game_status != 'quit':
                     # force to attack if there are no more potions
                     if player_pokemon.num_potions == 0:
                         display_message('No more potions left')
-                        pygame.time.wait(1000)
+                        pygame.time.delay(500)
                         game_status = 'player move'
                     else:
                         player_pokemon.use_potion()
                         display_message(f'{player_pokemon.name} used potion')
-                        pygame.time.wait(1000)
+                        pygame.time.delay(500)
                         game_status = 'rival turn'
 
             # for selecting a move
@@ -413,7 +413,7 @@ while game_status != 'quit':
             pygame.display.update()
 
         # pause for 1 second
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
         # player sends out their pokemon
         alpha = 0
@@ -440,7 +440,7 @@ while game_status != 'quit':
         pygame.display.update()
 
         # pause for 1 second
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
     # display the fight and use potion buttons
     if game_status == 'player turn':
@@ -464,8 +464,10 @@ while game_status != 'quit':
         # Julius コマンドを直接実行
         julius_command = [
             "julius",
-            "-C", "dialogue-demo/asr/grammar-mic.jconf",
-            "-input", "mic"
+            "-C",
+            "dialogue-demo/asr/grammar-mic.jconf",
+            "-input",
+            "mic"
         ]
 
         try:
@@ -506,7 +508,7 @@ while game_status != 'quit':
                                 game_status = 'rival turn'
                             else:
                                 display_message("ポーションがありません！")
-                                time.sleep(2)
+                                pygame.time.delay(500)
                             break
                         else:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
@@ -545,7 +547,7 @@ while game_status != 'quit':
 
         # empty the display box and pause for 2 seconds before attacking
         display_message('')
-        pygame.time.wait(1000)
+        pygame.time.delay(500)
 
         # select a random move
         move = random.choice(rival_pokemon.moves)
