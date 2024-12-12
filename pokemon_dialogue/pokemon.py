@@ -213,6 +213,9 @@ class Pokemon(pygame.sprite.Sprite):
 
         return Rect(self.x, self.y, self.image.get_width(), self.image.get_height())
 
+#フォントパスの指定
+font_path = "PixelMplus-20130602/PixelMplus12-Regular.ttf"
+
 def display_message(message):
 
     # draw a white box with black border
@@ -220,7 +223,7 @@ def display_message(message):
     pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
 
     # display the message
-    font = pygame.font.Font(pygame.font.get_default_font(), 20)
+    font = pygame.font.Font(font_path, 18)
     text = font.render(message, True, black)
     text_rect = text.get_rect()
     text_rect.x = 30
