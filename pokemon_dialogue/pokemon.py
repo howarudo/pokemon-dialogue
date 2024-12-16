@@ -93,10 +93,13 @@ class Pokemon(pygame.sprite.Sprite):
         self.set_sprite('front_default')
 
     def perform_attack(self, other, move):
-        if english_to_japanese_moves[move.name]:
-            display_message(f'{english_to_japanese[self.name]}は　{english_to_japanese_moves[move.name]}を　つかった！')
-        else:
-            display_message(f'{english_to_japanese[self.name]}は　 {move.name}を　つかった！')
+        try:
+            if english_to_japanese_moves[move.name]:
+                display_message(f'{english_to_japanese[self.name]}は　{english_to_japanese_moves[move.name]}を　つかった！')
+            else:
+                display_message(f'{english_to_japanese[self.name]}は　 {move.name}を　つかった！')
+        except KeyError:
+            display_message('リザードンは　ほのおのうずを　はいた！')
 
         # pause for 2 seconds
         waitFor(2000)
@@ -672,12 +675,44 @@ while game_status != 'quit':
         rival_pokemon.perform_attack(player_pokemon, move)
 
         # check if the player's pokemon fainted
-        if player_pokemon.current_hp == 0 or rival_pokemon.current_hp == 0:
+        if player_pokemon.current_hp == 0:
+            game_status = 'evolution'
+        elif rival_pokemon.current_hp == 0:
             game_status = 'fainted'
         else:
             game_status = 'player turn'
-
         pygame.display.update()
+
+    if game_status == 'evolution':
+        # フェードアウトと白い点滅演出
+        for alpha in range(0, 255, 10):
+            game.fill(white)  # 画面を白く塗りつぶす
+            player_pokemon.draw(alpha=255 - alpha)  # 徐々に透明にする
+            pygame.display.update()
+            pygame.time.delay(200)
+
+        game.fill(white)
+        display_message("おや？ ヒトカゲのようすが・・・？？？")
+        pygame.time.delay(2000)  # メッセージ表示待機
+
+        level = 99
+        player_pokemon = Pokemon('Charizard', level, 25, 150)
+        player_pokemon.set_moves()
+        player_pokemon.hp_x = 275
+        player_pokemon.hp_y = 250
+
+        player_pokemon.draw()
+        rival_pokemon.draw()
+        player_pokemon.draw_hp()
+        rival_pokemon.draw_hp()
+
+        display_message("ヒトカゲは　リザードンに　しんかした！")
+        pygame.time.delay(2000)
+
+        player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
+        pygame.time.delay(2000)
+        if rival_pokemon.current_hp == 0:
+            game_status = 'fainted'
 
     # one of the pokemons fainted
     if game_status == 'fainted':
