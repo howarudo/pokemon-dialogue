@@ -19,6 +19,10 @@ size = (game_width, game_height)
 game = pygame.display.set_mode(size)
 pygame.display.set_caption('Pokemon Battle')
 
+vs_sound = "pokemon_dialogue/vstrainer.wav"
+win_sound = "pokemon_dialogue/winpokemon.wav"
+is_battle_music_playing = False
+
 # define colors
 black = (0, 0, 0)
 gold = (218, 165, 32)
@@ -89,8 +93,10 @@ class Pokemon(pygame.sprite.Sprite):
         self.set_sprite('front_default')
 
     def perform_attack(self, other, move):
-
-        display_message(f'{self.name} used {move.name}')
+        if english_to_japanese_moves[move.name]:
+            display_message(f'{english_to_japanese[self.name]}は　{english_to_japanese_moves[move.name]}を　つかった！')
+        else:
+            display_message(f'{english_to_japanese[self.name]}は　 {move.name}を　つかった！')
 
         # pause for 2 seconds
         waitFor(2000)
@@ -301,6 +307,18 @@ english_to_japanese_moves = {
     'bubble': 'あわ'
     }
 
+#わざの名前を英語から日本語へ直す辞書 
+english_to_japanese_moves = {'vine-whip': 'つるのムチ',
+                             'tackle': 'たいあたり',
+                             'razor-leaf': 'はっぱカッター',
+                             'scratch': 'ひっかく',
+                             'ember': 'ひのこ',
+                             'rage': 'いかり',
+                             'slash': 'きりさく',
+                             'bite': 'かみつく',
+                             'water-gun': 'みずでっぽう',
+                             'bubble': 'あわ'}
+
 
 # game loop
 game_status = 'select pokemon'
@@ -376,6 +394,11 @@ while game_status != 'quit':
 
     # get moves from the API and reposition the pokemons
     if game_status == 'prebattle':
+        if not is_battle_music_playing:
+            pygame.mixer.music.load(vs_sound)
+            pygame.mixer.music.play(-1)  # 無限ループ再生
+            is_battle_music_playing = True
+
 
         # draw the selected pokemon
         game.fill(white)
@@ -498,7 +521,7 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "たたかう" in result :
+                        if "たたかう" or "いけ" or "ヒトカゲ" or "ゼニガメ" or "フシギダネ" in result : 
                             game_status = 'player move'
                             # game_status = 'fainted'
                             break
@@ -693,6 +716,11 @@ while game_status != 'quit':
 
     # gameover screen
     if game_status == 'gameover':
+        if is_battle_music_playing:
+            pygame.mixer.music.stop()
+            is_battle_music_playing = False
+            pygame.mixer.music.load(win_sound)
+            pygame.mixer.music.play(0)
 
         display_message('もういちど　たたかいますか？ (Y/N)?')
 
