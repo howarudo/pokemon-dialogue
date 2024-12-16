@@ -657,25 +657,29 @@ while game_status != 'quit':
     # rival selects a random move to attack with
     if game_status == 'rival turn':
 
-        game.fill(white)
-        player_pokemon.draw()
-        rival_pokemon.draw()
-        player_pokemon.draw_hp()
-        rival_pokemon.draw_hp()
-
-        # empty the display box and pause for 2 seconds before attacking
-        display_message('')
-        waitFor(2000)
-
-        # select a random move
-        move = random.choice(rival_pokemon.moves)
-        rival_pokemon.perform_attack(player_pokemon, move)
-
-        # check if the player's pokemon fainted
-        if player_pokemon.current_hp == 0 or rival_pokemon.current_hp == 0:
+        # check if the rival's pokemon fainted
+        if rival_pokemon.current_hp == 0:
             game_status = 'fainted'
         else:
-            game_status = 'player turn'
+            game.fill(white)
+            player_pokemon.draw()
+            rival_pokemon.draw()
+            player_pokemon.draw_hp()
+            rival_pokemon.draw_hp()
+
+            # empty the display box and pause for 2 seconds before attacking
+            display_message('')
+            waitFor(2000)
+
+            # select a random move
+            move = random.choice(rival_pokemon.moves)
+            rival_pokemon.perform_attack(player_pokemon, move)
+
+            # check if the player's pokemon fainted
+            if player_pokemon.current_hp == 0:
+                game_status = 'fainted'
+            else:
+                game_status = 'player turn'
 
         pygame.display.update()
 
