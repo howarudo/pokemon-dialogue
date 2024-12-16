@@ -307,7 +307,7 @@ english_to_japanese_moves = {
     'bubble': 'あわ'
     }
 
-#わざの名前を英語から日本語へ直す辞書 
+#わざの名前を英語から日本語へ直す辞書
 english_to_japanese_moves = {'vine-whip': 'つるのムチ',
                              'tackle': 'たいあたり',
                              'razor-leaf': 'はっぱカッター',
@@ -521,7 +521,7 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "たたかう" or "いけ" or "ヒトカゲ" or "ゼニガメ" or "フシギダネ" in result : 
+                        if "たたかう" in result or "いけ" in result or "ヒトカゲ" in result or "ゼニガメ" in result or "フシギダネ" in result :
                             game_status = 'player move'
                             # game_status = 'fainted'
                             break
@@ -609,29 +609,29 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result :
+                        if "つるのムチ" in result or (player_pokemon.name == "Squirtle" and "たいあたり" in result) or "ひっかく" in result :
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: あわ")
+                            print("技" + result)
                             break
-                        elif "たいあたり" in result or "いかり" in result or "みずでっぽう" in result:
+                        elif (player_pokemon.name == "Bulbasaur" and "たいあたり" in result) or "ひのこ" in result or "かみつく" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[1])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: たいあたり")
+                            print("技" + result)
                             break
-                        elif "はっぱカッター" in result or "きりさく" in result or "かみつく" in result:
+                        elif "はっぱカッター" in result or "いかり" in result or "みずでっぽう" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: はっぱカッター")
+                            print("技" + result)
                             break
-                        elif "ひっかく" in result or "ほのお" in result :
-                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
+                        elif "きりさく" in result or "あわ" in result :
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[3])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: はっぱカッター")
+                            print("技" + result)
                             break
 
                 # プロセスが終了した場合
