@@ -287,7 +287,19 @@ english_to_japanese = {
     'Squirtle': 'ゼニガメ',
     }
 
-
+#わざの名前を英語から日本語へ直す辞書
+english_to_japanese_moves = {
+    'vine-whip': 'つるのムチ',
+    'tackle': 'たいあたり',
+    'razor-leaf': 'はっぱカッター',
+    'scratch': 'ひっかく',
+    'ember': 'ひのこ',
+    'rage': 'いかり',
+    'slash': 'きりさく',
+    'bite': 'かみつく',
+    'water-gun': 'みずでっぽう',
+    'bubble': 'あわ'
+    }
 
 
 # game loop
@@ -542,15 +554,21 @@ while game_status != 'quit':
             waitFor(1500)
 
             # create a button for each move
-            for i in range(len(player_pokemon.moves)):
-                move = player_pokemon.moves[i]
+            for i in range(4):
                 button_width = 240
                 button_height = 70
                 left = 10 + i % 2 * button_width
                 top = 350 + i // 2 * button_height
                 text_center_x = left + 120
                 text_center_y = top + 35
-                button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, move.name.capitalize())
+                if i < len(player_pokemon.moves):
+                    move = player_pokemon.moves[i]
+                    if move.name in english_to_japanese_moves:
+                        button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, english_to_japanese_moves[move.name])
+                    else:
+                        button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, move.name.capitalize())
+                else:
+                    button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, ' ')
             # draw the black border
             pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
             pygame.display.update()
