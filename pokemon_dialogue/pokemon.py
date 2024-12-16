@@ -93,7 +93,7 @@ class Pokemon(pygame.sprite.Sprite):
         display_message(f'{self.name} used {move.name}')
 
         # pause for 2 seconds
-        pygame.time.delay(500)
+        waitFor(2000)
 
         # calculate the damage
         damage = (2 * self.level + 10) / 250 * self.attack / other.defense * move.power
@@ -252,6 +252,28 @@ def create_button(width, height, left, top, text_cx, text_cy, label):
 
     return button
 
+# Add the waitFor function
+def waitFor(milliseconds):
+    """ Wait for the given time period, but handling some events """
+    time_now = pygame.time.get_ticks()   # zero point
+    finish_time = time_now + milliseconds   # finish time
+
+    while time_now < finish_time:
+        # Handle user-input
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.event.post(pygame.event.Event(pygame.QUIT))  # re-post to handle in the main loop
+                break
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    break
+            # TODO handle any other important events here
+
+        pygame.display.update()  # Ensure display updates
+        pygame.time.wait(300)  # save some CPU for a split-second
+        time_now = pygame.time.get_ticks()  # update the current time
+
+
 # create the starter pokemons
 level = 30
 bulbasaur = Pokemon('Bulbasaur', level, 25, 150)
@@ -329,12 +351,12 @@ while game_status != 'quit':
                     # force to attack if there are no more potions
                     if player_pokemon.num_potions == 0:
                         display_message('No more potions left')
-                        pygame.time.delay(500)
+                        waitFor(1000)
                         game_status = 'player move'
                     else:
                         player_pokemon.use_potion()
                         display_message(f'{player_pokemon.name} used potion')
-                        pygame.time.delay(500)
+                        waitFor(1000)
                         game_status = 'rival turn'
 
             # for selecting a move
@@ -420,7 +442,7 @@ while game_status != 'quit':
             pygame.display.update()
 
         # pause for 1 second
-        pygame.time.delay(500)
+        waitFor(1000)
 
         # player sends out their pokemon
         alpha = 0
@@ -452,7 +474,7 @@ while game_status != 'quit':
         pygame.display.update()
 
         # pause for 1 second
-        pygame.time.delay(500)
+        waitFor(1000)
 
     # display the fight and use potion buttons
     if game_status == 'player turn':
@@ -508,7 +530,7 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result : 
+                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result :
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
@@ -531,7 +553,7 @@ while game_status != 'quit':
                             game_status = 'rival turn'
                             # game_status = 'fainted'
                             print("技: はっぱカッター")
-                            break                            
+                            break
 
                 # プロセスが終了した場合
                 if process.poll() is not None:
@@ -564,7 +586,7 @@ while game_status != 'quit':
 
         # empty the display box and pause for 2 seconds before attacking
         display_message('')
-        pygame.time.delay(500)
+        waitFor(2000)
 
         # select a random move
         move = random.choice(rival_pokemon.moves)
