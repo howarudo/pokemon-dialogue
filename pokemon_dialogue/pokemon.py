@@ -213,6 +213,7 @@ class Pokemon(pygame.sprite.Sprite):
 
         return Rect(self.x, self.y, self.image.get_width(), self.image.get_height())
 
+
 #フォントパスの指定
 font_path = "PixelMplus-20130602/PixelMplus12-Regular.ttf"
 
@@ -262,6 +263,12 @@ pokemons = [bulbasaur, charmander, squirtle]
 # the player's and rival's selected pokemon
 player_pokemon = None
 rival_pokemon = None
+
+# ポケモンの名前を英語から日本語へ直す辞書   
+english_to_japanese = {'Bulbasaur': 'フシギダネ',
+                       'Charmander':'ヒトカゲ',
+                       'Squirtle': 'ゼニガメ'}
+
 
 # game loop
 game_status = 'select pokemon'
@@ -315,7 +322,7 @@ while game_status != 'quit':
                         rival_pokemon.hp_y = 50
 
                         game_status = 'prebattle'
-
+            '''
             # for selecting fight or use potion
             elif game_status == 'player turn':
 
@@ -353,7 +360,7 @@ while game_status != 'quit':
                             game_status = 'fainted'
                         else:
                             game_status = 'rival turn'
-
+            '''
     # pokemon select screen
     if game_status == 'select pokemon':
 
@@ -456,7 +463,6 @@ while game_status != 'quit':
 
     # display the fight and use potion buttons
     if game_status == 'player turn':
-
         game.fill(white)
         player_pokemon.draw()
         rival_pokemon.draw()
@@ -464,13 +470,82 @@ while game_status != 'quit':
         rival_pokemon.draw_hp()
 
         # create the fight and use potion buttons
+        '''
         fight_button = create_button(240, 140, 10, 350, 130, 412, 'たたかう')
         potion_button = create_button(240, 140, 250, 350, 370, 412, "きずぐすり")
-
+        '''
+        # ボタンを使わない表示にする場合
+        display_message(f'{english_to_japanese[player_pokemon.name]}は　どうする？（たたかう　かいふく）')
+  
+        
         # draw the black border
         pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
 
         pygame.display.update()
+
+        # Julius コマンドを直接実行
+        julius_command = [
+            "julius",
+            "-C",
+            "dialogue-demo/asr/grammar-mic.jconf",
+            "-input",
+            "mic"
+        ]
+
+        try:
+            process = subprocess.Popen(
+                julius_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            # 音声認識の結果をリアルタイムで取得
+            while True:
+                line = process.stdout.readline()
+                if line:
+                    # "sentence1:" で始まる行を取得
+                    match = re.match(r"sentence1:\s*(.*)", line)
+                    if match:
+                        result = match.group(1).strip()
+                        print(f"認識結果: {result}")  # デバッグ用出力
+
+                        # 音声認識結果に応じてゲームロジックを実行
+                        if "たたかう" in result : 
+                            game_status = 'player move'
+                            # game_status = 'fainted'
+                            break      
+                        elif "かいふく" in result : 
+                            # force to attack if there are no more potions
+                            if player_pokemon.num_potions == 0:
+                                display_message('キズぐすりが　ありません')
+                                pygame.time.delay(500)
+                                game_status = 'player move'
+                            else:
+                                player_pokemon.use_potion()
+                                display_message('キズぐすりを　つかった！')
+                                pygame.time.delay(500)
+                                game_status = 'rival turn'
+                            break                       
+                # プロセスが終了した場合
+                if process.poll() is not None:
+                    print("Julius プロセスが終了しました")
+                    break
+            # print("ループを抜けました")
+
+            # Julius のエラー出力を取得してデバッグ
+            # stderr_output = process.stderr.read()
+            # print(stderr_output)
+            # if stderr_output:
+            #     print(f"Julius エラー: {stderr_output}")
+
+        except Exception as e:
+            print(f"Julius 実行中にエラーが発生しました: {str(e)}")
+            display_message("音声認識に失敗しました。リトライしてください。")
+
+        # 描画を更新
+        pygame.display.update()
+
+    
 
     if game_status == 'player move':
         # Julius コマンドを直接実行
