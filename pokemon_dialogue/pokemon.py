@@ -19,6 +19,10 @@ size = (game_width, game_height)
 game = pygame.display.set_mode(size)
 pygame.display.set_caption('Pokemon Battle')
 
+vs_sound = "pokemon_dialogue/vstrainer.wav"
+win_sound = "pokemon_dialogue/winpokemon.wav"
+is_battle_music_playing = False
+
 # define colors
 black = (0, 0, 0)
 gold = (218, 165, 32)
@@ -418,6 +422,11 @@ while game_status != 'quit':
 
     # get moves from the API and reposition the pokemons
     if game_status == 'prebattle':
+        if not is_battle_music_playing:
+            pygame.mixer.music.load(vs_sound)
+            pygame.mixer.music.play(-1)  # 無限ループ再生
+            is_battle_music_playing = True
+
 
         # draw the selected pokemon
         game.fill(white)
@@ -546,7 +555,7 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "たたかう" in result : 
+                        if "たたかう" or "いけ" or "ヒトカゲ" or "ゼニガメ" or "フシギダネ" in result : 
                             game_status = 'player move'
                             # game_status = 'fainted'
                             break      
@@ -726,6 +735,11 @@ while game_status != 'quit':
 
     # gameover screen
     if game_status == 'gameover':
+        if is_battle_music_playing:
+            pygame.mixer.music.stop()
+            is_battle_music_playing = False
+            pygame.mixer.music.load(win_sound)
+            pygame.mixer.music.play(0)
 
         display_message('もういちど　たたかいますか？ (Y/N)?')
 
