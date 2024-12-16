@@ -89,8 +89,10 @@ class Pokemon(pygame.sprite.Sprite):
         self.set_sprite('front_default')
 
     def perform_attack(self, other, move):
-
-        display_message(f'{self.name} used {move.name}')
+        if english_to_japanese_moves[move.name]:
+            display_message(f'{english_to_japanese[self.name]}は　{english_to_japanese_moves[move.name]}を　つかった！')
+        else:
+            display_message(f'{english_to_japanese[self.name]}は　 {move.name}を　つかった！')
 
         # pause for 2 seconds
         waitFor(2000)
@@ -290,6 +292,18 @@ rival_pokemon = None
 english_to_japanese = {'Bulbasaur': 'フシギダネ',
                        'Charmander':'ヒトカゲ',
                        'Squirtle': 'ゼニガメ'}
+
+#わざの名前を英語から日本語へ直す辞書 
+english_to_japanese_moves = {'vine-whip': 'つるのムチ',
+                             'tackle': 'たいあたり',
+                             'razor-leaf': 'はっぱカッター',
+                             'scratch': 'ひっかく',
+                             'ember': 'ひのこ',
+                             'rage': 'いかり',
+                             'slash': 'きりさく',
+                             'bite': 'かみつく',
+                             'water-gun': 'みずでっぽう',
+                             'bubble': 'あわ'}
 
 
 # game loop
