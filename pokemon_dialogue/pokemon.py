@@ -240,16 +240,10 @@ def display_message(message):
     pygame.display.update()
 
 def create_button(width, height, left, top, text_cx, text_cy, label):
-    # position of the mouse cursor
-    mouse_cursor = pygame.mouse.get_pos()
-
     button = Rect(left, top, width, height)
 
     # highlight the button if mouse is pointing to it
-    if button.collidepoint(mouse_cursor):
-        pygame.draw.rect(game, gold, button)
-    else:
-        pygame.draw.rect(game, white, button)
+    pygame.draw.rect(game, white, button)
 
     # add the label to the button
     font = pygame.font.Font(font_path, 16)  # 日本語対応フォントを指定
@@ -277,7 +271,7 @@ def waitFor(milliseconds):
             # TODO handle any other important events here
 
         pygame.display.update()  # Ensure display updates
-        pygame.time.wait(300)  # save some CPU for a split-second
+        pygame.time.wait(100)  # save some CPU for a split-second
         time_now = pygame.time.get_ticks()  # update the current time
 
 
@@ -292,10 +286,26 @@ pokemons = [bulbasaur, charmander, squirtle]
 player_pokemon = None
 rival_pokemon = None
 
-# ポケモンの名前を英語から日本語へ直す辞書   
-english_to_japanese = {'Bulbasaur': 'フシギダネ',
-                       'Charmander':'ヒトカゲ',
-                       'Squirtle': 'ゼニガメ'}
+# ポケモンの名前を英語から日本語へ直す辞書
+english_to_japanese = {
+    'Bulbasaur': 'フシギダネ',
+    'Charmander':'ヒトカゲ',
+    'Squirtle': 'ゼニガメ',
+    }
+
+#わざの名前を英語から日本語へ直す辞書
+english_to_japanese_moves = {
+    'vine-whip': 'つるのムチ',
+    'tackle': 'たいあたり',
+    'razor-leaf': 'はっぱカッター',
+    'scratch': 'ひっかく',
+    'ember': 'ひのこ',
+    'rage': 'いかり',
+    'slash': 'きりさく',
+    'bite': 'かみつく',
+    'water-gun': 'みずでっぽう',
+    'bubble': 'あわ'
+    }
 
 #わざの名前を英語から日本語へ直す辞書 
 english_to_japanese_moves = {'vine-whip': 'つるのムチ',
@@ -362,45 +372,7 @@ while game_status != 'quit':
                         rival_pokemon.hp_y = 50
 
                         game_status = 'prebattle'
-            '''
-            # for selecting fight or use potion
-            elif game_status == 'player turn':
 
-                # check if fight button was clicked
-                if fight_button.collidepoint(mouse_click):
-                    game_status = 'player move'
-
-                # check if potion button was clicked
-                if potion_button.collidepoint(mouse_click):
-
-                    # force to attack if there are no more potions
-                    if player_pokemon.num_potions == 0:
-                        display_message('No more potions left')
-                        waitFor(1000)
-                        game_status = 'player move'
-                    else:
-                        player_pokemon.use_potion()
-                        display_message(f'{player_pokemon.name} used potion')
-                        waitFor(1000)
-                        game_status = 'rival turn'
-
-            # for selecting a move
-            elif game_status == 'player move':
-
-                # check which move button was clicked
-                for i in range(len(move_buttons)):
-                    button = move_buttons[i]
-
-                    if button.collidepoint(mouse_click):
-                        move = player_pokemon.moves[i]
-                        player_pokemon.perform_attack(rival_pokemon, move)
-
-                        # check if the rival's pokemon fainted
-                        if rival_pokemon.current_hp == 0:
-                            game_status = 'fainted'
-                        else:
-                            game_status = 'rival turn'
-            '''
     # pokemon select screen
     if game_status == 'select pokemon':
 
@@ -514,15 +486,9 @@ while game_status != 'quit':
         player_pokemon.draw_hp()
         rival_pokemon.draw_hp()
 
-        # create the fight and use potion buttons
-        '''
-        fight_button = create_button(240, 140, 10, 350, 130, 412, 'たたかう')
-        potion_button = create_button(240, 140, 250, 350, 370, 412, "きずぐすり")
-        '''
         # ボタンを使わない表示にする場合
         display_message(f'{english_to_japanese[player_pokemon.name]}は　どうする？（たたかう　かいふく）')
-  
-        
+
         # draw the black border
         pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
 
@@ -558,8 +524,8 @@ while game_status != 'quit':
                         if "たたかう" or "いけ" or "ヒトカゲ" or "ゼニガメ" or "フシギダネ" in result : 
                             game_status = 'player move'
                             # game_status = 'fainted'
-                            break      
-                        elif "かいふく" in result : 
+                            break
+                        elif "かいふく" in result :
                             # force to attack if there are no more potions
                             if player_pokemon.num_potions == 0:
                                 display_message('キズぐすりが　ありません')
@@ -570,18 +536,11 @@ while game_status != 'quit':
                                 display_message('キズぐすりを　つかった！')
                                 pygame.time.delay(500)
                                 game_status = 'rival turn'
-                            break                       
+                            break
                 # プロセスが終了した場合
                 if process.poll() is not None:
                     print("Julius プロセスが終了しました")
                     break
-            # print("ループを抜けました")
-
-            # Julius のエラー出力を取得してデバッグ
-            # stderr_output = process.stderr.read()
-            # print(stderr_output)
-            # if stderr_output:
-            #     print(f"Julius エラー: {stderr_output}")
 
         except Exception as e:
             print(f"Julius 実行中にエラーが発生しました: {str(e)}")
@@ -589,8 +548,6 @@ while game_status != 'quit':
 
         # 描画を更新
         pygame.display.update()
-
-    
 
     if game_status == 'player move':
         # Julius コマンドを直接実行
@@ -616,6 +573,30 @@ while game_status != 'quit':
             rival_pokemon.draw_hp()
 
             display_message("ポケモンに指示を出すんだ！！！")
+
+            waitFor(1500)
+
+            # create a button for each move
+            for i in range(4):
+                button_width = 240
+                button_height = 70
+                left = 10 + i % 2 * button_width
+                top = 350 + i // 2 * button_height
+                text_center_x = left + 120
+                text_center_y = top + 35
+                if i < len(player_pokemon.moves):
+                    move = player_pokemon.moves[i]
+                    if move.name in english_to_japanese_moves:
+                        button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, english_to_japanese_moves[move.name])
+                    else:
+                        button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, move.name.capitalize())
+                else:
+                    button = create_button(button_width, button_height, left, top, text_center_x, text_center_y, ' ')
+            # draw the black border
+            pygame.draw.rect(game, black, (10, 350, 480, 140), 3)
+            pygame.display.update()
+
+            waitFor(2000)
 
             # 音声認識の結果をリアルタイムで取得
             while True:
