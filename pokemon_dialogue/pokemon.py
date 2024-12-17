@@ -282,7 +282,6 @@ def waitFor(milliseconds):
 level = 30
 bulbasaur = Pokemon('Bulbasaur', level, 25, 150)
 charmander = Pokemon('Charmander', level, 175, 150)
-charmander.current_hp = 3
 squirtle = Pokemon('Squirtle', level, 325, 150)
 pokemons = [bulbasaur, charmander, squirtle]
 
