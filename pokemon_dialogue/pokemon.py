@@ -297,20 +297,6 @@ english_to_japanese = {
     }
 
 #わざの名前を英語から日本語へ直す辞書
-english_to_japanese_moves = {
-    'vine-whip': 'つるのムチ',
-    'tackle': 'たいあたり',
-    'razor-leaf': 'はっぱカッター',
-    'scratch': 'ひっかく',
-    'ember': 'ひのこ',
-    'rage': 'いかり',
-    'slash': 'きりさく',
-    'bite': 'かみつく',
-    'water-gun': 'みずでっぽう',
-    'bubble': 'あわ'
-    }
-
-#わざの名前を英語から日本語へ直す辞書 
 english_to_japanese_moves = {'vine-whip': 'つるのムチ',
                              'tackle': 'たいあたり',
                              'razor-leaf': 'はっぱカッター',
@@ -347,35 +333,6 @@ while game_status != 'quit':
             elif event.key == K_n:
                 game_status = 'quit'
 
-        # detect mouse click
-        if event.type == MOUSEBUTTONDOWN:
-
-            # coordinates of the mouse click
-            mouse_click = event.pos
-
-            # for selecting a pokemon
-            if game_status == 'select pokemon':
-
-                # check which pokemon was clicked on
-                for i in range(len(pokemons)):
-
-                    if pokemons[i].get_rect().collidepoint(mouse_click):
-
-                        # assign the player's and rival's pokemon
-                        player_pokemon = pokemons[i]
-                        rival_pokemon = pokemons[(i + 1) % len(pokemons)]
-
-                        # lower the rival pokemon's level to make the battle easier
-                        rival_pokemon.level = int(rival_pokemon.level * .75)
-
-                        # set the coordinates of the hp bars
-                        player_pokemon.hp_x = 275
-                        player_pokemon.hp_y = 250
-                        rival_pokemon.hp_x = 50
-                        rival_pokemon.hp_y = 50
-
-                        game_status = 'prebattle'
-
     # pokemon select screen
     if game_status == 'select pokemon':
 
@@ -386,12 +343,61 @@ while game_status != 'quit':
         charmander.draw()
         squirtle.draw()
 
-        # draw box around pokemon the mouse is pointing to
-        mouse_cursor = pygame.mouse.get_pos()
-        for pokemon in pokemons:
+        pygame.display.update()
 
-            if pokemon.get_rect().collidepoint(mouse_cursor):
-                pygame.draw.rect(game, black, pokemon.get_rect(), 2)
+        waitFor(1000)
+
+
+        julius_command = [
+            "julius",
+            "-C",
+            "dialogue-demo/asr/grammar-mic.jconf",
+            "-input",
+            "mic"
+        ]
+
+        try:
+            process = subprocess.Popen(
+                julius_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+
+            while True:
+                line = process.stdout.readline()
+                if line:
+                    # "sentence1:" で始まる行を取得
+                    match = re.match(r"sentence1:\s*(.*)", line)
+                    if match:
+                        result = match.group(1).strip()
+                        print(f"認識結果: {result}")  # デバッグ用出力
+                        if "フシギダネ" in result:
+                            player_pokemon = pokemons[0]
+                            rival_pokemon = pokemons[1]
+                        elif "ヒトカゲ" in result:
+                            player_pokemon = pokemons[1]
+                            rival_pokemon = pokemons[2]
+                        elif "ゼニガメ" in result:
+                            player_pokemon = pokemons[2]
+                            rival_pokemon = pokemons[0]
+                        else:
+                            continue
+                        # lower the rival pokemon's level to make the battle easier
+                        rival_pokemon.level = int(rival_pokemon.level * .75)
+                        player_pokemon.hp_x = 275
+                        player_pokemon.hp_y = 250
+                        rival_pokemon.hp_x = 50
+                        rival_pokemon.hp_y = 50
+
+                        game_status = 'prebattle'
+                        break
+                if process.poll() is not None:
+                    print("Julius プロセスが終了しました")
+                    break
+        except Exception as e:
+            print(f"Julius 実行中にエラーが発生しました: {str(e)}")
+            display_message("音声認識に失敗しました。リトライしてください。")
 
         pygame.display.update()
 
@@ -524,7 +530,7 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "たたかう" or "いけ" or "ヒトカゲ" or "ゼニガメ" or "フシギダネ" in result : 
+                        if "たたかう" in result or "いけ" in result or "ヒトカゲ" in result or "ゼニガメ" in result or "フシギダネ" in result :
                             game_status = 'player move'
                             # game_status = 'fainted'
                             break
@@ -612,29 +618,29 @@ while game_status != 'quit':
                         print(f"認識結果: {result}")  # デバッグ用出力
 
                         # 音声認識結果に応じてゲームロジックを実行
-                        if "あわ" in result or "つるのムチ" in result or "ひのこ" in result :
+                        if "つるのムチ" in result or (player_pokemon.name == "Squirtle" and "たいあたり" in result) or "ひっかく" in result :
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: あわ")
+                            print("技" + result)
                             break
-                        elif "たいあたり" in result or "いかり" in result or "みずでっぽう" in result:
+                        elif (player_pokemon.name == "Bulbasaur" and "たいあたり" in result) or "ひのこ" in result or "かみつく" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[1])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: たいあたり")
+                            print("技" + result)
                             break
-                        elif "はっぱカッター" in result or "きりさく" in result or "かみつく" in result:
+                        elif "はっぱカッター" in result or "いかり" in result or "みずでっぽう" in result:
                             player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: はっぱカッター")
+                            print("技" + result)
                             break
-                        elif "ひっかく" in result or "ほのお" in result :
-                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[2])
+                        elif "きりさく" in result or "あわ" in result :
+                            player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[3])
                             game_status = 'rival turn'
                             # game_status = 'fainted'
-                            print("技: はっぱカッター")
+                            print("技" + result)
                             break
 
                 # プロセスが終了した場合
@@ -660,19 +666,23 @@ while game_status != 'quit':
     # rival selects a random move to attack with
     if game_status == 'rival turn':
 
-        game.fill(white)
-        player_pokemon.draw()
-        rival_pokemon.draw()
-        player_pokemon.draw_hp()
-        rival_pokemon.draw_hp()
+        # check if the rival's pokemon fainted
+        if rival_pokemon.current_hp == 0:
+            game_status = 'fainted'
+        else:
+            game.fill(white)
+            player_pokemon.draw()
+            rival_pokemon.draw()
+            player_pokemon.draw_hp()
+            rival_pokemon.draw_hp()
 
-        # empty the display box and pause for 2 seconds before attacking
-        display_message('')
-        waitFor(2000)
+            # empty the display box and pause for 2 seconds before attacking
+            display_message('')
+            waitFor(2000)
 
-        # select a random move
-        move = random.choice(rival_pokemon.moves)
-        rival_pokemon.perform_attack(player_pokemon, move)
+            # select a random move
+            move = random.choice(rival_pokemon.moves)
+            rival_pokemon.perform_attack(player_pokemon, move)
 
         # check if the player's pokemon fainted
         if player_pokemon.current_hp == 0:
