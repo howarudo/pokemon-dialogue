@@ -685,7 +685,7 @@ while game_status != 'quit':
             rival_pokemon.perform_attack(player_pokemon, move)
 
         # check if the player's pokemon fainted
-        if player_pokemon.current_hp == 0:
+        if player_pokemon.current_hp == 0 and (player_pokemon.name == "Charmander"):
             game.fill(white)
             player_pokemon.draw()
             rival_pokemon.draw()
@@ -694,7 +694,7 @@ while game_status != 'quit':
             pygame.display.update()
             waitFor(4000)
             game_status = 'evolution'
-        elif rival_pokemon.current_hp == 0:
+        elif player_pokemon.current_hp == 0 or rival_pokemon.current_hp == 0:
             game_status = 'fainted'
         else:
             game_status = 'player turn'
