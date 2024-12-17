@@ -271,10 +271,10 @@ def waitFor(milliseconds):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     break
-            # TODO handle any other important events here
-
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                break
         pygame.display.update()  # Ensure display updates
-        pygame.time.wait(100)  # save some CPU for a split-second
+        pygame.time.wait(200)  # save some CPU for a split-second
         time_now = pygame.time.get_ticks()  # update the current time
 
 
@@ -282,6 +282,7 @@ def waitFor(milliseconds):
 level = 30
 bulbasaur = Pokemon('Bulbasaur', level, 25, 150)
 charmander = Pokemon('Charmander', level, 175, 150)
+charmander.current_hp = 3
 squirtle = Pokemon('Squirtle', level, 325, 150)
 pokemons = [bulbasaur, charmander, squirtle]
 
@@ -538,12 +539,12 @@ while game_status != 'quit':
                             # force to attack if there are no more potions
                             if player_pokemon.num_potions == 0:
                                 display_message('キズぐすりが　ありません')
-                                pygame.time.delay(500)
+                                waitFor(500)
                                 game_status = 'player move'
                             else:
                                 player_pokemon.use_potion()
                                 display_message('キズぐすりを　つかった！')
-                                pygame.time.delay(500)
+                                waitFor(500)
                                 game_status = 'rival turn'
                             break
                 # プロセスが終了した場合
@@ -686,6 +687,13 @@ while game_status != 'quit':
 
         # check if the player's pokemon fainted
         if player_pokemon.current_hp == 0:
+            game.fill(white)
+            player_pokemon.draw()
+            rival_pokemon.draw()
+            player_pokemon.draw_hp()
+            rival_pokemon.draw_hp()
+            pygame.display.update()
+            waitFor(4000)
             game_status = 'evolution'
         elif rival_pokemon.current_hp == 0:
             game_status = 'fainted'
@@ -695,32 +703,56 @@ while game_status != 'quit':
 
     if game_status == 'evolution':
         # フェードアウトと白い点滅演出
-        for alpha in range(0, 255, 10):
+        alpha = 0
+        while alpha < 255:
             game.fill(white)  # 画面を白く塗りつぶす
+            rival_pokemon.draw()
+            rival_pokemon.draw_hp()
             player_pokemon.draw(alpha=255 - alpha)  # 徐々に透明にする
             pygame.display.update()
-            pygame.time.delay(200)
+            alpha += .4
 
         game.fill(white)
         display_message("おや？ ヒトカゲのようすが・・・？？？")
-        pygame.time.delay(2000)  # メッセージ表示待機
+        waitFor(2000)  # メッセージ表示待機
+
+        charmander = player_pokemon
 
         level = 99
-        player_pokemon = Pokemon('Charizard', level, 25, 150)
+        player_pokemon = Pokemon('Charizard', level, -40, 120)
         player_pokemon.set_moves()
+        player_pokemon.current_hp = 1
+        player_pokemon.size = 320
+        player_pokemon.set_sprite('back_default')
         player_pokemon.hp_x = 275
         player_pokemon.hp_y = 250
+
+        show_charmander = True
+        alpha = 0
+        while alpha < 255:
+            game.fill(white)
+            if show_charmander:
+                charmander.draw(alpha=255 - alpha)
+            else:
+                player_pokemon.draw(alpha=alpha)
+            show_charmander = not show_charmander
+            rival_pokemon.draw()
+            rival_pokemon.draw_hp()
+            # player_pokemon.draw_hp()
+            pygame.display.update()
+            alpha += 1
 
         player_pokemon.draw()
         rival_pokemon.draw()
         player_pokemon.draw_hp()
         rival_pokemon.draw_hp()
+        pygame.display.update()
 
         display_message("ヒトカゲは　リザードンに　しんかした！")
-        pygame.time.delay(2000)
+        waitFor(3000)
 
         player_pokemon.perform_attack(rival_pokemon, player_pokemon.moves[0])
-        pygame.time.delay(2000)
+        waitFor(1000)
         if rival_pokemon.current_hp == 0:
             game_status = 'fainted'
 
