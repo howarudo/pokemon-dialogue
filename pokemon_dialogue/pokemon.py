@@ -94,10 +94,8 @@ class Pokemon(pygame.sprite.Sprite):
 
     def perform_attack(self, other, move):
         try:
-            if english_to_japanese_moves[move.name]:
-                display_message(f'{english_to_japanese[self.name]}は　{english_to_japanese_moves[move.name]}を　つかった！')
-            else:
-                display_message(f'{english_to_japanese[self.name]}は　 {move.name}を　つかった！')
+            display_message(f'{english_to_japanese[self.name]}の　{english_to_japanese_moves[move.name]}　攻撃！')
+        
         except KeyError:
             display_message('リザードンは　ほのおのうずを　はいた！')
 
